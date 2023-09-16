@@ -7,18 +7,21 @@ var minimaxRoot =function(depth, game, isMaximisingPlayer) {
 
     var newGameMoves = game.ugly_moves();
     var bestMove = -9999;
-    var bestMoveFound;
+    var rand = Math.floor(Math.random()*newGameMoves.length);
+    var bestMoveFound = newGameMoves[rand];
 
-    for(var i = 0; i < newGameMoves.length; i++) {
-        var newGameMove = newGameMoves[i]
-        game.ugly_move(newGameMove);
-        var value = minimax(depth - 1, game, -10000, 10000, !isMaximisingPlayer);
-        game.undo();
-        if(value >= bestMove) {
-            bestMove = value;
-            bestMoveFound = newGameMove;
-        }
-    }
+    //$('#positions-per-s').text("best move: " + rand + "; " + JSON.stringify(bestMoveFound));
+
+    /* for(var i = 0; i < newGameMoves.length; i++) {
+    //     var newGameMove = newGameMoves[i];
+    //     game.ugly_move(newGameMove);
+    //     var value = minimax(depth - 1, game, -10000, 10000, !isMaximisingPlayer);
+    //     game.undo();
+    //     if(value >= bestMove) {
+    //         bestMove = value;
+    //         bestMoveFound = newGameMove;
+    //     }
+   }*/
     return bestMoveFound;
 };
 
@@ -74,51 +77,51 @@ var reverseArray = function(array) {
 var pawnEvalWhite =
     [
         [0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0],
-        [5.0,  5.0,  5.0,  5.0,  5.0,  5.0,  5.0,  5.0],
-        [1.0,  1.0,  2.0,  3.0,  3.0,  2.0,  1.0,  1.0],
-        [0.5,  0.5,  1.0,  2.5,  2.5,  1.0,  0.5,  0.5],
-        [0.0,  0.0,  0.0,  2.0,  2.0,  0.0,  0.0,  0.0],
-        [0.5, -0.5, -1.0,  0.0,  0.0, -1.0, -0.5,  0.5],
+        [6.0,  5.5,  5.0,  5.0,  5.0,  5.0,  5.5,  6.0],
+        [1.5,  1.5,  2.0,  3.0,  3.0,  2.0,  1.5,  1.5],
+        [-0.5,  -0.5,  0.0,  2.5,  2.5,  0.0,  -0.5,  -0.5],
+        [-0.5,  -1.0,  0.0,  2.0,  2.0,  -1.5,  0.0,  0.0],
+        [0.5, 0.5, -0.5,  0.0,  0.0, -2.0, 0.5,  0.5],
         [0.5,  1.0, 1.0,  -2.0, -2.0,  1.0,  1.0,  0.5],
         [0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0]
     ];
 
 var pawnEvalBlack = reverseArray(pawnEvalWhite);
 
-var knightEval =
+var knightEvalWhite =
     [
         [-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0],
-        [-4.0, -2.0,  0.0,  0.0,  0.0,  0.0, -2.0, -4.0],
-        [-3.0,  0.0,  1.0,  1.5,  1.5,  1.0,  0.0, -3.0],
-        [-3.0,  0.5,  1.5,  2.0,  2.0,  1.5,  0.5, -3.0],
-        [-3.0,  0.0,  1.5,  2.0,  2.0,  1.5,  0.0, -3.0],
-        [-3.0,  0.5,  1.0,  1.5,  1.5,  1.0,  0.5, -3.0],
-        [-4.0, -2.0,  0.0,  0.5,  0.5,  0.0, -2.0, -4.0],
+        [-4.0, -3.0,  0.0,  0.5,  0.5,  0.0, -3.0, -4.0],
+        [-2.0,  0.5,  1.5,  1.0,  1.0,  1.5,  0.5, -2.0],
+        [-2.5,  -0.5,  2.0,  1.5,  1.5,  3.0,  -0.5, -2.5],
+        [-2.5,  -0.5,  2.5,  1.5,  1.5,  1.0,  -0.5, -2.5],
+        [-2.0,  0.5,  1.5,  1.0,  1.0,  1.5,  0.5, -2.0],
+        [-4.0, -3.0,  0.0,  0.5,  0.5,  0.0, -3.0, -4.0],
         [-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0]
     ];
-
+var knightEvalBlack = reverseArray(knightEvalWhite);
 var bishopEvalWhite = [
     [ -2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0],
     [ -1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -1.0],
     [ -1.0,  0.0,  0.5,  1.0,  1.0,  0.5,  0.0, -1.0],
     [ -1.0,  0.5,  0.5,  1.0,  1.0,  0.5,  0.5, -1.0],
     [ -1.0,  0.0,  1.0,  1.0,  1.0,  1.0,  0.0, -1.0],
-    [ -1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0, -1.0],
-    [ -1.0,  0.5,  0.0,  0.0,  0.0,  0.0,  0.5, -1.0],
-    [ -2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0]
+    [ -1.0,  -0.5,  1.5,  0.5,  0.5,  1.5,  -0.5, -1.0],
+    [ -2.0,  2.0,  -0.5,  -1.0,  -1.0,  -0.0,  2.0, -2.0],
+    [ -1.0, -2.0, -1.0, -1.5, -1.5, -1.0, -2.0, -1.0]
 ];
 
 var bishopEvalBlack = reverseArray(bishopEvalWhite);
 
 var rookEvalWhite = [
     [  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0],
-    [  0.5,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  0.5],
+    [  1.0,  1.5,  1.5,  1.5,  1.5,  1.5,  1.5,  1.0],
     [ -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
     [ -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
     [ -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
     [ -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
     [ -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
-    [  0.0,   0.0, 0.0,  0.5,  0.5,  0.0,  0.0,  0.0]
+    [  0.0,   0.0, 0.0,  1.0,  1.0,  0.0,  0.0,  0.0]
 ];
 
 var rookEvalBlack = reverseArray(rookEvalWhite);
@@ -161,9 +164,9 @@ var getPieceValue = function (piece, x, y) {
         } else if (piece.type === 'r') {
             return 50 + ( isWhite ? rookEvalWhite[y][x] : rookEvalBlack[y][x] );
         } else if (piece.type === 'n') {
-            return 30 + knightEval[y][x];
+            return 30 + ( isWhite ? knightEvalWhite[y][x] : knightEvalBlack[y][x] );
         } else if (piece.type === 'b') {
-            return 30 + ( isWhite ? bishopEvalWhite[y][x] : bishopEvalBlack[y][x] );
+            return 33 + ( isWhite ? bishopEvalWhite[y][x] : bishopEvalBlack[y][x] );
         } else if (piece.type === 'q') {
             return 90 + evalQueen[y][x];
         } else if (piece.type === 'k') {
@@ -200,7 +203,7 @@ var makeBestMove = function () {
 var positionCount;
 var getBestMove = function (game) {
     if (game.game_over()) {
-        alert('Game over');
+        alert('Game Over');
     }
 
     positionCount = 0;
@@ -214,7 +217,7 @@ var getBestMove = function (game) {
 
     $('#position-count').text(positionCount);
     $('#time').text(moveTime/1000 + 's');
-    $('#positions-per-s').text(positionsPerS);
+    // $('#positions-per-s').text(positionsPerS);
     return bestMove;
 };
 
