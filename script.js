@@ -1,27 +1,48 @@
-var board,
-    game = new Chess();
+var startingPos = '1k4n1/5p2/8/8/8/5N2/6P1/1K6 w - - 0 1',
+    board,
+    game = new Chess(startingPos);
+var games = [];
+document.getElementById('file-selector')
+    .addEventListener('change', function () {
+
+        var fr = new FileReader();
+        fr.onload = function () {
+            var pgns = fr.result.split("\n[Event ");
+
+            for (var i = 0; i < 1500; i++) {
+                pgns[i] = "[Event " + pgns[i];
+                var new_game = new Chess();
+                new_game.load_pgn(pgns[i]);
+                games.push(new_game);
+            }
+
+            // game.load_pgn(fr.result);
+        }
+
+        fr.readAsText(this.files[0]);
+    });
 
 /*The "AI" part starts here */
 
-var minimaxRoot =function(depth, game, isMaximisingPlayer) {
+var minimaxRoot = function (depth, game, isMaximisingPlayer) {
 
     var newGameMoves = game.ugly_moves();
     var bestMove = -9999;
-    var rand = Math.floor(Math.random()*newGameMoves.length);
-    var bestMoveFound = newGameMoves[rand];
+    var bestMoveFound;
 
     //$('#positions-per-s').text("best move: " + rand + "; " + JSON.stringify(bestMoveFound));
 
-    /* for(var i = 0; i < newGameMoves.length; i++) {
-    //     var newGameMove = newGameMoves[i];
-    //     game.ugly_move(newGameMove);
-    //     var value = minimax(depth - 1, game, -10000, 10000, !isMaximisingPlayer);
-    //     game.undo();
-    //     if(value >= bestMove) {
-    //         bestMove = value;
-    //         bestMoveFound = newGameMove;
-    //     }
-   }*/
+    for (var i = 0; i < newGameMoves.length; i++) {
+        var newGameMove = newGameMoves[i];
+        game.ugly_move(newGameMove);
+        var value = minimax(depth - 1, game, -10000, 10000, !isMaximisingPlayer);
+        game.undo();
+        if (value >= bestMove) {
+            bestMove = value;
+            bestMoveFound = newGameMove;
+        }
+    }
+
     return bestMoveFound;
 };
 
@@ -64,26 +85,26 @@ var evaluateBoard = function (board) {
     var totalEvaluation = 0;
     for (var i = 0; i < 8; i++) {
         for (var j = 0; j < 8; j++) {
-            totalEvaluation = totalEvaluation + getPieceValue(board[i][j], i ,j);
+            totalEvaluation = totalEvaluation + getPieceValue(board[i][j], i, j);
         }
     }
     return totalEvaluation;
 };
 
-var reverseArray = function(array) {
+var reverseArray = function (array) {
     return array.slice().reverse();
 };
 
 var pawnEvalWhite =
     [
-        [0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0],
-        [6.0,  5.5,  5.0,  5.0,  5.0,  5.0,  5.5,  6.0],
-        [1.5,  1.5,  2.0,  3.0,  3.0,  2.0,  1.5,  1.5],
-        [-0.5,  -0.5,  0.0,  2.5,  2.5,  0.0,  -0.5,  -0.5],
-        [-0.5,  -1.0,  0.0,  2.0,  2.0,  -1.5,  0.0,  0.0],
-        [0.5, 0.5, -0.5,  0.0,  0.0, -2.0, 0.5,  0.5],
-        [0.5,  1.0, 1.0,  -2.0, -2.0,  1.0,  1.0,  0.5],
-        [0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0]
+        [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+        [6.0, 5.5, 5.0, 5.0, 5.0, 5.0, 5.5, 6.0],
+        [1.5, 1.5, 2.0, 3.0, 3.0, 2.0, 1.5, 1.5],
+        [-0.5, -0.5, 0.0, 2.5, 2.5, 0.0, -0.5, -0.5],
+        [-0.5, -1.0, 0.0, 2.0, 2.0, -1.5, 0.0, 0.0],
+        [0.5, 0.5, -0.5, 0.0, 0.0, -2.0, 0.5, 0.5],
+        [0.5, 1.0, 1.0, -2.0, -2.0, 1.0, 1.0, 0.5],
+        [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
     ];
 
 var pawnEvalBlack = reverseArray(pawnEvalWhite);
@@ -91,91 +112,134 @@ var pawnEvalBlack = reverseArray(pawnEvalWhite);
 var knightEvalWhite =
     [
         [-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0],
-        [-4.0, -3.0,  0.0,  0.5,  0.5,  0.0, -3.0, -4.0],
-        [-2.0,  0.5,  1.5,  1.0,  1.0,  1.5,  0.5, -2.0],
-        [-2.5,  -0.5,  2.0,  1.5,  1.5,  3.0,  -0.5, -2.5],
-        [-2.5,  -0.5,  2.5,  1.5,  1.5,  1.0,  -0.5, -2.5],
-        [-2.0,  0.5,  1.5,  1.0,  1.0,  1.5,  0.5, -2.0],
-        [-4.0, -3.0,  0.0,  0.5,  0.5,  0.0, -3.0, -4.0],
+        [-4.0, -3.0, 0.0, 0.5, 0.5, 0.0, -3.0, -4.0],
+        [-2.0, 0.5, 1.5, 1.0, 1.0, 1.5, 0.5, -2.0],
+        [-2.5, -0.5, 2.0, 1.5, 1.5, 3.0, -0.5, -2.5],
+        [-2.5, -0.5, 2.5, 1.5, 1.5, 1.0, -0.5, -2.5],
+        [-2.0, 0.5, 1.5, 1.0, 1.0, 1.5, 0.5, -2.0],
+        [-4.0, -3.0, 0.0, 0.5, 0.5, 0.0, -3.0, -4.0],
         [-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0]
     ];
 var knightEvalBlack = reverseArray(knightEvalWhite);
 var bishopEvalWhite = [
-    [ -2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0],
-    [ -1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -1.0],
-    [ -1.0,  0.0,  0.5,  1.0,  1.0,  0.5,  0.0, -1.0],
-    [ -1.0,  0.5,  0.5,  1.0,  1.0,  0.5,  0.5, -1.0],
-    [ -1.0,  0.0,  1.0,  1.0,  1.0,  1.0,  0.0, -1.0],
-    [ -1.0,  -0.5,  1.5,  0.5,  0.5,  1.5,  -0.5, -1.0],
-    [ -2.0,  2.0,  -0.5,  -1.0,  -1.0,  -0.0,  2.0, -2.0],
-    [ -1.0, -2.0, -1.0, -1.5, -1.5, -1.0, -2.0, -1.0]
+    [-2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0],
+    [-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0],
+    [-1.0, 0.0, 0.5, 1.0, 1.0, 0.5, 0.0, -1.0],
+    [-1.0, 0.5, 0.5, 1.0, 1.0, 0.5, 0.5, -1.0],
+    [-1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, -1.0],
+    [-1.0, -0.5, 1.5, 0.5, 0.5, 1.5, -0.5, -1.0],
+    [-2.0, 2.0, -0.5, -1.0, -1.0, -0.0, 2.0, -2.0],
+    [-1.0, -2.0, -1.0, -1.5, -1.5, -1.0, -2.0, -1.0]
 ];
 
 var bishopEvalBlack = reverseArray(bishopEvalWhite);
 
 var rookEvalWhite = [
-    [  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0],
-    [  1.0,  1.5,  1.5,  1.5,  1.5,  1.5,  1.5,  1.0],
-    [ -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
-    [ -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
-    [ -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
-    [ -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
-    [ -0.5,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -0.5],
-    [  0.0,   0.0, 0.0,  1.0,  1.0,  0.0,  0.0,  0.0]
+    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    [1.0, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.0],
+    [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
+    [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
+    [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
+    [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
+    [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
+    [0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0]
 ];
 
 var rookEvalBlack = reverseArray(rookEvalWhite);
 
 var evalQueen = [
-    [ -2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0],
-    [ -1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -1.0],
-    [ -1.0,  0.0,  0.5,  0.5,  0.5,  0.5,  0.0, -1.0],
-    [ -0.5,  0.0,  0.5,  0.5,  0.5,  0.5,  0.0, -0.5],
-    [  0.0,  0.0,  0.5,  0.5,  0.5,  0.5,  0.0, -0.5],
-    [ -1.0,  0.5,  0.5,  0.5,  0.5,  0.5,  0.0, -1.0],
-    [ -1.0,  0.0,  0.5,  0.0,  0.0,  0.0,  0.0, -1.0],
-    [ -2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0]
+    [-2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0],
+    [-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0],
+    [-1.0, 0.0, 0.5, 0.5, 0.5, 0.5, 0.0, -1.0],
+    [-0.5, 0.0, 0.5, 0.5, 0.5, 0.5, 0.0, -0.5],
+    [0.0, 0.0, 0.5, 0.5, 0.5, 0.5, 0.0, -0.5],
+    [-1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.0, -1.0],
+    [-1.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.0, -1.0],
+    [-2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0]
 ];
 
 var kingEvalWhite = [
 
-    [ -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
-    [ -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
-    [ -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
-    [ -3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
-    [ -2.0, -3.0, -3.0, -4.0, -4.0, -3.0, -3.0, -2.0],
-    [ -1.0, -2.0, -2.0, -2.0, -2.0, -2.0, -2.0, -1.0],
-    [  2.0,  2.0,  0.0,  0.0,  0.0,  0.0,  2.0,  2.0 ],
-    [  2.0,  3.0,  1.0,  0.0,  0.0,  1.0,  3.0,  2.0 ]
+    [-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
+    [-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
+    [-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
+    [-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
+    [-2.0, -3.0, -3.0, -4.0, -4.0, -3.0, -3.0, -2.0],
+    [-1.0, -2.0, -2.0, -2.0, -2.0, -2.0, -2.0, -1.0],
+    [2.0, 2.0, 0.0, 0.0, 0.0, 0.0, 2.0, 2.0],
+    [2.0, 3.0, 1.0, 0.0, 0.0, 1.0, 3.0, 2.0]
 ];
 
 var kingEvalBlack = reverseArray(kingEvalWhite);
 
+var fromChessJsPos = function (pos) {
+    return (pos % 8) + 8 * Math.floor(pos / 16);
+}
 
+var toChessJsPos = function (pos) {
+    return (pos % 8) + 16 * Math.floor(pos / 8);
+}
 
+var getNextKnightMoves = function (pos) {
+    pos = toChessJsPos(pos);
+    var legalKnightSquare = [];
+    var knightOffsets = [-18, -33, -31, -14, 18, 33, 31, 14];
+    for (var i = 0; i < knightOffsets.length; i++) {
+        var knightOffsetSquare = pos + knightOffsets[i];
+        if (knightOffsetSquare & 0x88) continue;
+        legalKnightSquare.push(fromChessJsPos(knightOffsetSquare));
+    }
+    return legalKnightSquare;
+}
+
+var findShortestKnight = function (pos, tarPos) {
+    var queue = [pos];
+    var visited = new Array(64);
+
+    while (queue.length !== 0) {
+        var curMove = queue.shift();
+        var step = visited[curMove] ? visited[curMove] : 0;
+
+        if (curMove === tarPos) {
+            return step;
+        }
+
+        var nextMoves = getNextKnightMoves(curMove);
+        for (var i = 0; i < nextMoves.length; i++) {
+            if (visited[nextMoves[i]] !== undefined) continue;
+
+            visited[nextMoves[i]] = step + 1;
+            queue.push(nextMoves[i]);
+        }
+    }
+
+    return -1;
+}
 
 var getPieceValue = function (piece, x, y) {
     if (piece === null) {
         return 0;
     }
-    var getAbsoluteValue = function (piece, isWhite, x ,y) {
+    var getAbsoluteValue = function (piece, isWhite, x, y) {
         if (piece.type === 'p') {
-            return 10 + ( isWhite ? pawnEvalWhite[y][x] : pawnEvalBlack[y][x] );
+            return 10 + (isWhite ? pawnEvalWhite[y][x] : pawnEvalBlack[y][x]);
         } else if (piece.type === 'r') {
-            return 50 + ( isWhite ? rookEvalWhite[y][x] : rookEvalBlack[y][x] );
+            return 50 + (isWhite ? rookEvalWhite[y][x] : rookEvalBlack[y][x]);
         } else if (piece.type === 'n') {
-            return 30 + ( isWhite ? knightEvalWhite[y][x] : knightEvalBlack[y][x] );
+            console.log(findShortestKnight(0, 21 /* c4 (simple squares)*/));
+            return 30 + (isWhite ? knightEvalWhite[y][x] : knightEvalBlack[y][x]);
         } else if (piece.type === 'b') {
-            return 33 + ( isWhite ? bishopEvalWhite[y][x] : bishopEvalBlack[y][x] );
+            return 33 + (isWhite ? bishopEvalWhite[y][x] : bishopEvalBlack[y][x]);
         } else if (piece.type === 'q') {
             return 90 + evalQueen[y][x];
         } else if (piece.type === 'k') {
-            return 900 + ( isWhite ? kingEvalWhite[y][x] : kingEvalBlack[y][x] );
+            return 900 + (isWhite ? kingEvalWhite[y][x] : kingEvalBlack[y][x]);
         }
         throw "Unknown piece type: " + piece.type;
+
     };
 
-    var absoluteValue = getAbsoluteValue(piece, piece.color === 'w', x ,y);
+    var absoluteValue = getAbsoluteValue(piece, piece.color === 'w', x, y);
     return piece.color === 'w' ? absoluteValue : -absoluteValue;
 };
 
@@ -213,10 +277,10 @@ var getBestMove = function (game) {
     var bestMove = minimaxRoot(depth, game, true);
     var d2 = new Date().getTime();
     var moveTime = (d2 - d);
-    var positionsPerS = ( positionCount * 1000 / moveTime);
+    var positionsPerS = (positionCount * 1000 / moveTime);
 
     $('#position-count').text(positionCount);
-    $('#time').text(moveTime/1000 + 's');
+    $('#time').text(moveTime / 1000 + 's');
     // $('#positions-per-s').text(positionsPerS);
     return bestMove;
 };
@@ -225,7 +289,7 @@ var renderMoveHistory = function (moves) {
     var historyElement = $('#move-history').empty();
     historyElement.empty();
     for (var i = 0; i < moves.length; i = i + 2) {
-        historyElement.append('<span>' + moves[i] + ' ' + ( moves[i + 1] ? moves[i + 1] : ' ') + '</span><br>')
+        historyElement.append('<span>' + moves[i] + ' ' + (moves[i + 1] ? moves[i + 1] : ' ') + '</span><br>')
     }
     historyElement.scrollTop(historyElement[0].scrollHeight);
 
@@ -252,7 +316,7 @@ var onSnapEnd = function () {
     board.position(game.fen());
 };
 
-var onMouseoverSquare = function(square, piece) {
+var onMouseoverSquare = function (square, piece) {
     var moves = game.moves({
         square: square,
         verbose: true
@@ -267,15 +331,15 @@ var onMouseoverSquare = function(square, piece) {
     }
 };
 
-var onMouseoutSquare = function(square, piece) {
+var onMouseoutSquare = function (square, piece) {
     removeGreySquares();
 };
 
-var removeGreySquares = function() {
+var removeGreySquares = function () {
     $('#board .square-55d63').css('background', '');
 };
 
-var greySquare = function(square) {
+var greySquare = function (square) {
     var squareEl = $('#board .square-' + square);
 
     var background = '#a9a9a9';
@@ -288,7 +352,7 @@ var greySquare = function(square) {
 
 var cfg = {
     draggable: true,
-    position: 'start',
+    position: startingPos,
     onDragStart: onDragStart,
     onDrop: onDrop,
     onMouseoutSquare: onMouseoutSquare,
