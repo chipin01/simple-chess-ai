@@ -1,4 +1,4 @@
-var startingPos = '1k4n1/5p2/8/8/8/5N2/6P1/1K6 w - - 0 1',
+var startingPos = 'k7/5p2/8/8/8/8/5P2/K7 w - - 0 1',
     board,
     game = new Chess(startingPos);
 var games = [];
@@ -81,99 +81,20 @@ var minimax = function (depth, game, alpha, beta, isMaximisingPlayer) {
     }
 };
 
-var evaluateBoard = function (board) {
-    var totalEvaluation = 0;
-    for (var i = 0; i < 8; i++) {
-        for (var j = 0; j < 8; j++) {
-            totalEvaluation = totalEvaluation + getPieceValue(board[i][j], i, j);
-        }
-    }
-    return totalEvaluation;
-};
 
-var reverseArray = function (array) {
-    return array.slice().reverse();
-};
-
-var pawnEvalWhite =
-    [
-        [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-        [6.0, 5.5, 5.0, 5.0, 5.0, 5.0, 5.5, 6.0],
-        [1.5, 1.5, 2.0, 3.0, 3.0, 2.0, 1.5, 1.5],
-        [-0.5, -0.5, 0.0, 2.5, 2.5, 0.0, -0.5, -0.5],
-        [-0.5, -1.0, 0.0, 2.0, 2.0, -1.5, 0.0, 0.0],
-        [0.5, 0.5, -0.5, 0.0, 0.0, -2.0, 0.5, 0.5],
-        [0.5, 1.0, 1.0, -2.0, -2.0, 1.0, 1.0, 0.5],
-        [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    ];
-
-var pawnEvalBlack = reverseArray(pawnEvalWhite);
-
-var knightEvalWhite =
-    [
-        [-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0],
-        [-4.0, -3.0, 0.0, 0.5, 0.5, 0.0, -3.0, -4.0],
-        [-2.0, 0.5, 1.5, 1.0, 1.0, 1.5, 0.5, -2.0],
-        [-2.5, -0.5, 2.0, 1.5, 1.5, 3.0, -0.5, -2.5],
-        [-2.5, -0.5, 2.5, 1.5, 1.5, 1.0, -0.5, -2.5],
-        [-2.0, 0.5, 1.5, 1.0, 1.0, 1.5, 0.5, -2.0],
-        [-4.0, -3.0, 0.0, 0.5, 0.5, 0.0, -3.0, -4.0],
-        [-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0]
-    ];
-var knightEvalBlack = reverseArray(knightEvalWhite);
-var bishopEvalWhite = [
-    [-2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0],
-    [-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0],
-    [-1.0, 0.0, 0.5, 1.0, 1.0, 0.5, 0.0, -1.0],
-    [-1.0, 0.5, 0.5, 1.0, 1.0, 0.5, 0.5, -1.0],
-    [-1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, -1.0],
-    [-1.0, -0.5, 1.5, 0.5, 0.5, 1.5, -0.5, -1.0],
-    [-2.0, 2.0, -0.5, -1.0, -1.0, -0.0, 2.0, -2.0],
-    [-1.0, -2.0, -1.0, -1.5, -1.5, -1.0, -2.0, -1.0]
+var REVERSE_SIMPLE = [
+    'a8', 'b8', 'c8', 'd8', 'e8', 'f8', 'g8', 'h8',
+    'a7', 'b7', 'c7', 'd7', 'e7', 'f7', 'g7', 'h7',
+    'a6', 'b6', 'c6', 'd6', 'e6', 'f6', 'g6', 'h6',
+    'a5', 'b5', 'c5', 'd5', 'e5', 'f5', 'g5', 'h5',
+    'a4', 'b4', 'c4', 'd4', 'e4', 'f4', 'g4', 'h4',
+    'a3', 'b3', 'c3', 'd3', 'e3', 'f3', 'g3', 'h3',
+    'a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2',
+    'a1', 'b1', 'c1', 'd1', 'e1', 'f1', 'g1', 'h1',
 ];
-
-var bishopEvalBlack = reverseArray(bishopEvalWhite);
-
-var rookEvalWhite = [
-    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-    [1.0, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.0],
-    [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
-    [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
-    [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
-    [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
-    [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
-    [0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0]
-];
-
-var rookEvalBlack = reverseArray(rookEvalWhite);
-
-var evalQueen = [
-    [-2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0],
-    [-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0],
-    [-1.0, 0.0, 0.5, 0.5, 0.5, 0.5, 0.0, -1.0],
-    [-0.5, 0.0, 0.5, 0.5, 0.5, 0.5, 0.0, -0.5],
-    [0.0, 0.0, 0.5, 0.5, 0.5, 0.5, 0.0, -0.5],
-    [-1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.0, -1.0],
-    [-1.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.0, -1.0],
-    [-2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0]
-];
-
-var kingEvalWhite = [
-
-    [-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
-    [-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
-    [-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
-    [-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
-    [-2.0, -3.0, -3.0, -4.0, -4.0, -3.0, -3.0, -2.0],
-    [-1.0, -2.0, -2.0, -2.0, -2.0, -2.0, -2.0, -1.0],
-    [2.0, 2.0, 0.0, 0.0, 0.0, 0.0, 2.0, 2.0],
-    [2.0, 3.0, 1.0, 0.0, 0.0, 1.0, 3.0, 2.0]
-];
-
-var kingEvalBlack = reverseArray(kingEvalWhite);
-
+    
 var fromChessJsPos = function (pos) {
-    return (pos % 8) + 8 * Math.floor(pos / 16);
+   return (pos % 8) + 8 * Math.floor(pos / 16);
 }
 
 var toChessJsPos = function (pos) {
@@ -216,23 +137,211 @@ var findShortestKnight = function (pos, tarPos) {
     return -1;
 }
 
+
+
+
+var findShortestRook = function (pos, tarPos) {
+    var absRook = Math.abs(pos - tarPos);
+    if (pos === tarPos) {
+        return 0;
+    }
+    if (absRook % 8 === 0) {
+        return 1;
+    }
+    var jsRookPos = toChessJsPos(pos);
+    var jsRooktarPos = toChessJsPos(tarPos);
+    if (Math.abs(jsRookPos - jsRooktarPos) <= 7) {
+        return 1;
+    }
+    return 2;
+}
+var findShortestBishop = function (pos, tarPos) {
+    var absBishopDif = Math.abs(pos - tarPos);
+    var simplePosBishop = fromChessJsPos(pos);
+    var simpletarPosBishop = fromChessJsPos(tarPos);
+    var squareColorPos = game.square_color(REVERSE_SIMPLE[simplePosBishop]);
+    var squareColortarPos = game.square_color(REVERSE_SIMPLE[simpletarPosBishop]);
+    if (pos === tarPos) {
+        return 0;
+    }
+    else if (absBishopDif % 15 === 0 || absBishopDif % 17 === 0) {
+        return 1;
+    }
+    else if (squareColorPos !== squareColortarPos) {
+        return -1;
+    }
+    else {
+        return 2;
+    }
+}
+
+
+
+var findShortestQueen = function (pos, tarPos) {
+    var bishopQueen = findShortestBishop(pos, tarPos);
+    var rookQueen = findShortestRook(pos, tarPos);
+    if (pos === tarPos) {
+        return 0;
+    }
+    if (bishopQueen !== -1) {
+        return Math.min(bishopQueen, rookQueen);
+    }
+    return rookQueen;
+}
+
+var findShortestPawn = function (pos, tarPos, isWhite) {
+    if (pos === tarPos) {
+        return 0;
+    }
+    if (pos % 8 !== tarPos % 8) {
+        return -1;
+    }
+    if (isWhite) {
+        if (Math.floor(pos / 8) === 6) {
+            if (pos - 8 === tarPos) {
+                return 1;
+            }
+            return Math.abs(pos - tarPos) / 8 - 1;
+        }
+        return Math.abs(pos - tarPos) / 8;
+    }
+    else {
+        if (Math.floor(pos / 8) === 1) {
+            if (pos + 8 === tarPos) {
+                return 1;
+            }
+            return Math.abs(pos - tarPos) / 8 - 1;
+        }
+        return Math.abs(pos - tarPos) / 8;
+    }
+}
+
+var findShortestKing = function (pos, tarPos) {
+    if (pos === tarPos) {
+        return 0;
+    }
+    var kingDistanceRank = Math.abs((pos % 8) - (tarPos % 8));
+    var kingDistanceFile = Math.abs((Math.floor(pos / 8)) - (Math.floor(tarPos / 8)));
+    return Math.max(kingDistanceRank, kingDistanceFile);
+}
+
+var moveNumber = 1;
+
+var evaluateBoard = function (board) {
+    // var tempBoard = new ChessBoard('fen...');
+    var totalEvaluation = 0;
+    for (var i = 0; i < 8; i++) {
+        for (var j = 0; j < 8; j++) {
+            totalEvaluation = totalEvaluation + getPieceValue(board[i][j], i, j);
+        }
+    }
+    return totalEvaluation;
+};
+
+var reverseArray = function (array) {
+    return array.slice().reverse();
+};
+
+var pawnEvalWhite =
+    [
+        [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+        [6.0, 5.5, 5.0, 5.0, 5.0, 5.0, 5.5, 6.0],
+        [1.5, 1.5, 2.0, 3.0, 3.0, 2.0, 1.5, 1.5],
+        [-0.5, -0.5, 0.0, 2.5, 2.5, 0.0, -0.5, -0.5],
+        [-0.5, -1.0, 0.0, 2.0, 2.0, -1.5, 0.0, 0.0],
+        [0.5, 0.5, -0.5, 0.0, 0.0, -2.0, 0.5, 0.5],
+        [0.5, 1.0, 1.0, -2.0, -2.0, 1.0, 1.0, 0.5],
+        [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    ];
+
+var pawnEvalBlack = reverseArray(pawnEvalWhite);
+
+var knightEvalWhite =
+    [
+        [-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0],
+        [-4.0, -3.0, 0.0, 0.5, 0.5, 0.0, -3.0, -4.0],
+        [-2.0, 0.5, 1.5, 1.0, 1.0, 1.5, 0.5, -2.0],
+        [-2.5, -0.5, 2.0, 1.5, 1.5, 3.0, -0.5, -2.5],
+        [-2.5, -0.5, 2.5, 1.5, 1.5, 1.0, -0.5, -2.5],
+        [-2.0, 0.5, 1.5, 0.0, 0.0, 1.5, 1.0, -2.0],
+        [-4.0, -3.0, 0.0, 0.5, 0.5, 0.0, -3.0, -4.0],
+        [-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0]
+    ];
+var knightEvalBlack = reverseArray(knightEvalWhite);
+var bishopEvalWhite = [
+    [-2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0],
+    [-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0],
+    [-1.0, 0.0, 0.5, 1.0, 1.0, 0.5, 0.0, -1.0],
+    [-1.0, 0.5, 0.5, 1.0, 1.0, 0.5, 0.5, -1.0],
+    [-1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, -1.0],
+    [-1.0, -0.5, 1.5, 0.5, 0.5, 1.5, -0.5, -1.0],
+    [-2.0, 2.0, -0.5, -1.0, -1.0, -0.0, 2.0, -2.0],
+    [-1.0, -2.0, -1.0, -1.5, -1.5, -1.0, -2.0, -1.0]
+];
+
+var bishopEvalBlack = reverseArray(bishopEvalWhite);
+
+var rookEvalWhite = [
+    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    [1.0, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.0],
+    [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
+    [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
+    [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
+    [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
+    [-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5],
+    [0.0, 0.0, 0.0, 1.5, 1.5, 0.0, 0.0, 0.0]
+];
+
+var rookEvalBlack = reverseArray(rookEvalWhite);
+
+var evalQueen = [
+    [-2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0],
+    [-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0],
+    [-1.0, 0.0, 0.5, 0.5, 0.5, 0.5, 0.0, -1.0],
+    [-0.5, 0.0, 0.5, 0.5, 0.5, 0.5, 0.0, -0.5],
+    [0.0, 0.0, 0.5, 0.5, 0.5, 0.5, 0.0, -0.5],
+    [-1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.0, -1.0],
+    [-1.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.0, -1.0],
+    [-2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0]
+];
+
+var kingEvalWhite = [
+
+    [-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
+    [-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
+    [-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
+    [-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0],
+    [-2.0, -3.0, -3.0, -4.0, -4.0, -3.0, -3.0, -2.0],
+    [-1.0, -2.0, -2.0, -2.0, -2.0, -2.0, -2.0, -1.0],
+    [2.0, 2.0, 0.0, 0.0, 0.0, 0.0, 2.0, 2.0],
+    [2.0, 3.0, 1.0, 0.0, 0.0, 1.0, 3.0, 2.0]
+];
+
+var kingEvalBlack = reverseArray(kingEvalWhite);
+
+
 var getPieceValue = function (piece, x, y) {
     if (piece === null) {
         return 0;
     }
     var getAbsoluteValue = function (piece, isWhite, x, y) {
         if (piece.type === 'p') {
+            // console.log(findShortestPawn(48, 0, true) /*simple squares */);
             return 10 + (isWhite ? pawnEvalWhite[y][x] : pawnEvalBlack[y][x]);
         } else if (piece.type === 'r') {
+            // console.log(findShortestRook(1, 69) /* simple squares */)
             return 50 + (isWhite ? rookEvalWhite[y][x] : rookEvalBlack[y][x]);
         } else if (piece.type === 'n') {
-            console.log(findShortestKnight(0, 21 /* c4 (simple squares)*/));
+            // console.log(findShortestKnight(0, 21) /* simple squares */);
             return 30 + (isWhite ? knightEvalWhite[y][x] : knightEvalBlack[y][x]);
         } else if (piece.type === 'b') {
+            // console.log(findShortestBishop(0, 54) /* simple squares */);
             return 33 + (isWhite ? bishopEvalWhite[y][x] : bishopEvalBlack[y][x]);
         } else if (piece.type === 'q') {
+            // console.log(findShortestQueen(0, 57) /* simple squares */);
             return 90 + evalQueen[y][x];
         } else if (piece.type === 'k') {
+            // console.log(findShortestKing(0, 63) /* simple squares */);
             return 900 + (isWhite ? kingEvalWhite[y][x] : kingEvalBlack[y][x]);
         }
         throw "Unknown piece type: " + piece.type;
